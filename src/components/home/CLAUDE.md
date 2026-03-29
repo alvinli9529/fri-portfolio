@@ -13,5 +13,6 @@ Diagnostics.tsx: Right-column panel — stat boxes (latency/uptime), network tra
 NetworkTraffic.tsx: Animated bar chart — 30 bars randomized every 4s via setInterval, consumed exclusively by Diagnostics
 ActiveModules.tsx: Left-column bottom panel — AI module statuses with jittery progress bars
 Terminal.tsx: Center-column bottom panel — expandable session terminal with slash commands, generic replies, and 45ms typing effect
+CoreDirectives.tsx: Right-column bottom panel — 7 directive cards (CSS `.directive-reveal` stagger), WEEKLY nav button, social links (GitHub/Discord/Docs/@z1han), hidden diary easter egg. Server component (no `"use client"`)
 
 [PROTOCOL]: Update this file on any member change, then check parent CLAUDE.md
