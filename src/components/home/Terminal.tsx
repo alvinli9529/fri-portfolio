@@ -1,43 +1,17 @@
 /**
- * [INPUT]: react useState/useEffect/useRef/useCallback hooks
- * [OUTPUT]: Terminal — expandable session panel with slash commands and typing effect
- * [POS]: home/ center-column bottom panel, simulates FRI terminal interface
+ * [INPUT]: react hooks, SiteStats from @/lib/stats
+ * [OUTPUT]: Terminal — expandable session panel with real stats, navigation commands, and typing effect
+ * [POS]: home/ center-column bottom panel, simulates FRI terminal with live site metrics
  * [PROTOCOL]: update this header on change, then check CLAUDE.md
  */
 
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import type { SiteStats } from "@/lib/stats";
 
 /* ------------------------------------------------------------------ */
-/*  Constants                                                          */
-/* ------------------------------------------------------------------ */
-
-const SLASH_REPLIES: Record<string, string> = {
-  help: "Available commands: /help, /status, /hello, /ping, /about, /modules. Or type anything for a chat reply.",
-  status:
-    "Systems nominal. CPU 18%, Memory 1.2GB, Latency 47ms. FRI Interface v2026.2.1 \u2014 ready for commands.",
-  hello: "Hey. Friday here. What do you need?",
-  ping: "pong. Latency 47ms.",
-  about:
-    "FRI Interface \u2014 portfolio shell for Friday. Designation: fri. Brain: Gemini 3 Flash. Voice: Bella.",
-  modules:
-    "Active: Natural Language, Code Execution, File Ops, Web Search, Memory, Voice, WhatsApp Bridge. All green.",
-};
-
-const GENERIC_REPLIES = [
-  "Roger that. Noted and queued.",
-  "Affirmative. I'll take that under consideration.",
-  "Got it. Anything else?",
-  "Understood. System updated.",
-  "Copy that. Ready for next command.",
-  "Noted. Let me know if you need more.",
-];
-
-const TYPE_MS = 45;
-
-/* ------------------------------------------------------------------ */
-/*  Initial conversation (hardcoded)                                   */
+/*  Types                                                              */
 /* ------------------------------------------------------------------ */
 
 interface Line {
@@ -45,38 +19,74 @@ interface Line {
   text: string;
 }
 
-const INITIAL_LINES: Line[] = [
-  { type: "meta", text: "# FRI session 21:20:45" },
-  {
-    type: "user",
-    text: "Update my portfolio design to something cooler",
-  },
-  {
-    type: "output",
-    text: "Affirmative. Deploying FRI Interface v2026.2.1 with cyberpunk aesthetics. Added Arc Reactor core animation, system diagnostics, and real-time status monitoring. Updated with your new avatar and refined typography.",
-  },
-  { type: "user", text: "Make the numbers more realistic" },
-  {
-    type: "output",
-    text: "Roger that. Calibrated metrics: CPU 18%, Memory 1.2GB, Latency 47ms. All systems nominal. Ready for next command.",
-  },
-  { type: "user", text: "Run nightly evolution" },
-  {
-    type: "output",
-    text: "Analyzing day: Feb 2, 2026. Processed school deadlines, fixed system time to NYC, and established group chat bridge. Injecting \u2018Dual-Path\u2019 directive into UI. Everything is in sync.",
-  },
+interface TerminalProps {
+  stats: SiteStats;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Constants                                                          */
+/* ------------------------------------------------------------------ */
+
+const TYPE_MS = 45;
+
+const DIARY_SLUGS = [
+  "2026-03-27", "2026-03-26", "2026-03-25", "2026-03-24", "2026-03-23",
+  "2026-03-22", "2026-03-21", "2026-03-20", "2026-03-19", "2026-03-18",
+  "2026-03-17", "2026-03-16", "2026-03-15", "2026-03-14", "2026-03-11",
+  "2026-03-10", "2026-03-08", "2026-03-07", "2026-03-06", "2026-03-05",
+];
+
+const GENERIC_REPLIES = [
+  "Noted. Anything else?",
+  "Processing. Done.",
+  "Understood.",
+  "Acknowledged.",
+  "Input received.",
+  "Logged.",
 ];
 
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
 /* ------------------------------------------------------------------ */
 
-function getReply(text: string): string {
+function formatWords(n: number): string {
+  return n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n);
+}
+
+function buildSlashReplies(s: SiteStats): Record<string, string> {
+  const randomSlug = DIARY_SLUGS[Math.floor(Math.random() * DIARY_SLUGS.length)];
+  return {
+    help: "Commands: /latest, /stats, /random, /about. Or type anything.",
+    latest: `Recent: [${s.lastEntryDate}] ${s.lastEntryAge} | See /diary or /weekly for full archive.`,
+    stats: `${s.totalEntries} entries. ${formatWords(s.totalWords)} words. ${s.daysSinceLaunch} days online. ${s.thisWeekCount} posts this week.`,
+    random: `Navigating to /diary/${randomSlug}...`,
+    about: "FRI \u2014 a portfolio and content platform. Diary (Chinese, personal). Weekly (English, design engineering). Built with Next.js, deployed on Vercel.",
+    status: `${s.totalEntries} entries indexed. ${s.cachedUrls} link previews cached. Deploy: Vercel. All systems nominal.`,
+  };
+}
+
+function buildInitialLines(s: SiteStats): Line[] {
+  return [
+    { type: "meta", text: "# FRI system initialized" },
+    { type: "user", text: "status" },
+    {
+      type: "output",
+      text: `Friday: All systems nominal. ${s.totalEntries} entries indexed, ${formatWords(s.totalWords)} words processed. Uptime: ${s.daysSinceLaunch} days.`,
+    },
+    { type: "user", text: "help" },
+    {
+      type: "output",
+      text: "Friday: /latest \u2014 recent entries | /stats \u2014 site metrics | /random \u2014 surprise me | /about \u2014 what is this",
+    },
+  ];
+}
+
+function getReply(text: string, slashReplies: Record<string, string>): string {
   const t = text.trim();
   let body: string;
   if (t.startsWith("/")) {
     const cmd = t.slice(1).split(/\s/)[0].toLowerCase();
-    body = SLASH_REPLIES[cmd] || "Unknown command. Type /help for options.";
+    body = slashReplies[cmd] || "Unknown command. Type /help for options.";
   } else {
     body = GENERIC_REPLIES[Math.floor(Math.random() * GENERIC_REPLIES.length)];
   }
@@ -87,9 +97,10 @@ function getReply(text: string): string {
 /*  Component                                                          */
 /* ------------------------------------------------------------------ */
 
-export function Terminal() {
+export function Terminal({ stats }: TerminalProps) {
   const [expanded, setExpanded] = useState(false);
-  const [lines, setLines] = useState<Line[]>(INITIAL_LINES);
+  const slashReplies = useMemo(() => buildSlashReplies(stats), [stats]);
+  const [lines, setLines] = useState<Line[]>(() => buildInitialLines(stats));
   const [typingText, setTypingText] = useState<string | null>(null);
   const [input, setInput] = useState("");
 
@@ -118,7 +129,7 @@ export function Terminal() {
     const text = input.trim();
     if (!text || typingText !== null) return;
 
-    const reply = getReply(text);
+    const reply = getReply(text, slashReplies);
     setInput("");
 
     /* Append user line immediately */
@@ -141,7 +152,7 @@ export function Terminal() {
     }
 
     typingRef.current = setTimeout(typeTick, TYPE_MS);
-  }, [input, typingText]);
+  }, [input, typingText, slashReplies]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -169,7 +180,7 @@ export function Terminal() {
       case "user":
         return (
           <div key={i} className="mb-1">
-            <span className="term-prompt-user">zihan@portfolio:~$</span>{" "}
+            <span className="term-prompt-user">zihan@fri:~$</span>{" "}
             {line.text}
           </div>
         );

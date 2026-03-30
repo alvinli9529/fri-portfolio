@@ -1,6 +1,6 @@
 /**
- * [INPUT]:  react useState/useEffect for clock + resource jitter
- * [OUTPUT]: SystemHeader — top bar with logo, status, CPU/MEM gauges, NYC clock
+ * [INPUT]:  react useState/useEffect for NYC clock; props totalEntries, totalWords, daysSinceLaunch
+ * [OUTPUT]: SystemHeader — top bar with logo, status, POSTS/WORDS gauges, NYC clock
  * [POS]:    home/ layout header, first visual element on the homepage
  * [PROTOCOL]: update this header on change, then check CLAUDE.md
  */
@@ -10,14 +10,18 @@
 import { useState, useEffect } from "react";
 
 /* ------------------------------------------------------------------ */
-/*  Constants                                                          */
+/*  Types                                                              */
 /* ------------------------------------------------------------------ */
 
-const CPU_BASE = 18;
-const MEM_BASE_GB = 1.2;
-const MEM_MAX_GB = 1.6;
-const MEM_LO = 1.14;
-const MEM_HI = 1.26;
+interface SystemHeaderProps {
+  totalEntries: number;
+  totalWords: number;
+  daysSinceLaunch: number;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Constants                                                          */
+/* ------------------------------------------------------------------ */
 
 const clockFmt = new Intl.DateTimeFormat("en-US", {
   timeZone: "America/New_York",
@@ -31,10 +35,8 @@ const clockFmt = new Intl.DateTimeFormat("en-US", {
 /*  Component                                                          */
 /* ------------------------------------------------------------------ */
 
-export function SystemHeader() {
+export function SystemHeader({ totalEntries, totalWords }: SystemHeaderProps) {
   const [clock, setClock] = useState("");
-  const [cpu, setCpu] = useState(CPU_BASE);
-  const [mem, setMem] = useState(MEM_BASE_GB);
 
   /* --- NYC clock (1 s) --- */
   useEffect(() => {
@@ -44,21 +46,8 @@ export function SystemHeader() {
     return () => clearInterval(id);
   }, []);
 
-  /* --- CPU / MEM jitter (2.5 s) --- */
-  useEffect(() => {
-    const tick = () => {
-      const rawCpu = Math.round(CPU_BASE + (Math.random() - 0.5) * 10);
-      setCpu(Math.min(100, Math.max(0, rawCpu)));
-
-      const rawMem = MEM_BASE_GB + (Math.random() - 0.5) * 0.12;
-      setMem(Math.max(MEM_LO, Math.min(MEM_HI, rawMem)));
-    };
-    tick();
-    const id = setInterval(tick, 2500);
-    return () => clearInterval(id);
-  }, []);
-
-  const memPct = Math.round((mem / MEM_MAX_GB) * 100);
+  const entriesPct = Math.min(100, totalEntries);
+  const wordsPct = Math.min(100, Math.round(totalWords / 500));
 
   return (
     <header className="flex-none min-h-14 md:h-16 border-b border-[#ec4899]/25 bg-[#050510]/90 backdrop-blur-md flex items-center justify-between px-4 md:px-6 z-50">
@@ -82,24 +71,24 @@ export function SystemHeader() {
           <span className="hidden sm:inline">SYSTEM ONLINE</span>
         </div>
 
-        {/* CPU gauge */}
+        {/* POSTS gauge */}
         <div className="hidden sm:flex flex-col items-end">
-          <span>CPU: {cpu}%</span>
+          <span>POSTS: {totalEntries}</span>
           <div className="w-24 h-1 bg-pink-950 mt-1">
             <div
               className="h-full bg-pink-400 transition-all duration-700"
-              style={{ width: `${cpu}%` }}
+              style={{ width: `${entriesPct}%` }}
             />
           </div>
         </div>
 
-        {/* MEM gauge */}
+        {/* WORDS gauge */}
         <div className="hidden sm:flex flex-col items-end">
-          <span>MEM: {mem.toFixed(1)}GB</span>
+          <span>WORDS: {(totalWords / 1000).toFixed(1)}k</span>
           <div className="w-24 h-1 bg-pink-950 mt-1">
             <div
               className="h-full bg-pink-400 transition-all duration-700"
-              style={{ width: `${memPct}%` }}
+              style={{ width: `${wordsPct}%` }}
             />
           </div>
         </div>

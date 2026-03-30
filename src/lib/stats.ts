@@ -1,0 +1,116 @@
+/**
+ * [INPUT]: fs, path (node builtins), content directory
+ * [OUTPUT]: getSiteStats() — real-time site metrics from content/
+ * [POS]: lib/stats — build-time stats for homepage dashboard
+ * [PROTOCOL]: update this header on change, then check CLAUDE.md
+ */
+
+import fs from "fs";
+import path from "path";
+
+const CONTENT_DIR = path.join(process.cwd(), "content");
+const LAUNCH_DATE = new Date(2026, 0, 30, 22, 0, 0);
+
+export interface SiteStats {
+  diaryCount: number;
+  weeklyCount: number;
+  totalEntries: number;
+  totalWords: number;
+  daysSinceLaunch: number;
+  lastEntryDate: string;
+  lastEntryAge: string;
+  thisWeekCount: number;
+  thisMonthCount: number;
+  dailyActivity: number[];
+  cachedUrls: number;
+}
+
+function countWords(text: string): number {
+  const stripped = text.replace(/^---[\s\S]*?---\n/, "");
+  const cjk = (stripped.match(/[\u4e00-\u9fff\u3040-\u309f\u30a0-\u30ff]/g) || []).length;
+  const latin = stripped.replace(/[\u4e00-\u9fff\u3040-\u309f\u30a0-\u30ff]/g, "")
+    .split(/\s+/).filter(Boolean).length;
+  return cjk + latin;
+}
+
+function getFiles(type: string): string[] {
+  const dir = path.join(CONTENT_DIR, type);
+  if (!fs.existsSync(dir)) return [];
+  return fs.readdirSync(dir).filter((f) => f.endsWith(".md"));
+}
+
+function getDateFromFilename(filename: string): string {
+  return filename.replace(/\.md$/, "");
+}
+
+function relativeTime(dateStr: string): string {
+  const d = new Date(dateStr);
+  const now = new Date();
+  const diffMs = now.getTime() - d.getTime();
+  const diffH = Math.floor(diffMs / 3600000);
+  if (diffH < 1) return "just now";
+  if (diffH < 24) return `${diffH}h ago`;
+  const diffD = Math.floor(diffH / 24);
+  if (diffD < 7) return `${diffD}d ago`;
+  return `${Math.floor(diffD / 7)}w ago`;
+}
+
+export function getSiteStats(): SiteStats {
+  const diaryFiles = getFiles("diary");
+  const weeklyFiles = getFiles("weekly");
+  const allFiles = [
+    ...diaryFiles.map((f) => ({ f, dir: "diary" })),
+    ...weeklyFiles.map((f) => ({ f, dir: "weekly" })),
+  ];
+
+  let totalWords = 0;
+  const dates: string[] = [];
+
+  for (const { f, dir } of allFiles) {
+    const raw = fs.readFileSync(path.join(CONTENT_DIR, dir, f), "utf8");
+    totalWords += countWords(raw);
+    dates.push(getDateFromFilename(f));
+  }
+
+  dates.sort().reverse();
+  const lastDate = dates[0] || "unknown";
+
+  const now = new Date();
+  const weekAgo = new Date(now.getTime() - 7 * 86400000);
+  const monthAgo = new Date(now.getTime() - 30 * 86400000);
+
+  const thisWeekCount = dates.filter((d) => new Date(d) >= weekAgo).length;
+  const thisMonthCount = dates.filter((d) => new Date(d) >= monthAgo).length;
+
+  const daysSinceLaunch = Math.floor((now.getTime() - LAUNCH_DATE.getTime()) / 86400000);
+
+  // daily activity: last 30 days, each = entry count
+  const dailyActivity: number[] = [];
+  for (let i = 29; i >= 0; i--) {
+    const day = new Date(now.getTime() - i * 86400000);
+    const dayStr = day.toISOString().slice(0, 10);
+    const count = dates.filter((d) => d === dayStr).length;
+    dailyActivity.push(count);
+  }
+
+  // count cached OG URLs
+  const cacheDir = path.join(process.cwd(), ".cache", "og");
+  let cachedUrls = 0;
+  if (fs.existsSync(cacheDir)) {
+    cachedUrls = fs.readdirSync(cacheDir).filter((f) => f.endsWith(".json")).length;
+  }
+
+  return {
+    diaryCount: diaryFiles.length,
+    weeklyCount: weeklyFiles.length,
+    totalEntries: allFiles.length,
+    totalWords: Math.round(totalWords / 100) * 100,
+    daysSinceLaunch,
+    lastEntryDate: lastDate,
+    lastEntryAge: relativeTime(lastDate),
+    thisWeekCount,
+    thisMonthCount,
+    dailyActivity,
+    cachedUrls,
+  };
+}

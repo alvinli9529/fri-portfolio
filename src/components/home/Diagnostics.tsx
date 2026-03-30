@@ -1,6 +1,6 @@
 /**
- * [INPUT]: @/components/ui/TechBorder, ./NetworkTraffic
- * [OUTPUT]: Diagnostics — right-column panel with stats, network bars, service statuses
+ * [INPUT]: @/components/ui/TechBorder, props from page.tsx (thisWeekCount, thisMonthCount, dailyActivity, diaryCount, weeklyCount, cachedUrls)
+ * [OUTPUT]: Diagnostics — right-column panel with real stats, publishing frequency bars, service statuses
  * [POS]: home/ top-level section, renders in the 3-col grid right column
  * [PROTOCOL]: update this header on change, then check CLAUDE.md
  */
@@ -8,24 +8,39 @@
 "use client";
 
 import { TechBorder } from "@/components/ui/TechBorder";
-import { NetworkTraffic } from "./NetworkTraffic";
 
 /* ------------------------------------------------------------------ */
-/*  Static data                                                       */
+/*  Types                                                             */
 /* ------------------------------------------------------------------ */
 
-const services = [
-  { name: "GATEWAY_API", status: "ONLINE", color: "text-green-400" },
-  { name: "ORBITOS_SYNC", status: "ACTIVE", color: "text-yellow-400" },
-  { name: "EMAIL_DAEMON", status: "RUNNING", color: "text-green-400" },
-  { name: "SECURITY_PROTOCOL", status: "ENCRYPTED", color: "text-green-400" },
-] as const;
+interface DiagnosticsProps {
+  thisWeekCount: number;
+  thisMonthCount: number;
+  dailyActivity: number[];
+  diaryCount: number;
+  weeklyCount: number;
+  cachedUrls: number;
+}
 
 /* ------------------------------------------------------------------ */
 /*  Component                                                         */
 /* ------------------------------------------------------------------ */
 
-export function Diagnostics() {
+export function Diagnostics({
+  thisWeekCount,
+  thisMonthCount,
+  dailyActivity,
+  diaryCount,
+  weeklyCount,
+  cachedUrls,
+}: DiagnosticsProps) {
+  const services = [
+    { name: "DIARY", status: `${diaryCount} entries`, color: "text-green-400" },
+    { name: "WEEKLY", status: `${weeklyCount} entries`, color: "text-green-400" },
+    { name: "LINK_PREVIEW", status: `CACHED (${cachedUrls})`, color: "text-green-400" },
+    { name: "DEPLOY", status: "VERCEL", color: "text-green-400" },
+  ];
+
   return (
     <TechBorder className="p-6 md:p-5">
       {/* Title */}
@@ -43,24 +58,40 @@ export function Diagnostics() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
         <div className="bg-pink-950/10 p-4 text-center">
           <div className="text-[10px] text-gray-400 uppercase mb-1.5">
-            Latency
+            This Week
           </div>
           <div className="text-xl font-bold font-vt323 text-pink-300">
-            47ms
+            {thisWeekCount}
           </div>
         </div>
         <div className="bg-pink-950/10 p-4 text-center">
           <div className="text-[10px] text-gray-400 uppercase mb-1.5">
-            Uptime
+            This Month
           </div>
           <div className="text-xl font-bold font-vt323 text-pink-300">
-            99.97%
+            {thisMonthCount}
           </div>
         </div>
       </div>
 
-      {/* Network traffic bars */}
-      <NetworkTraffic />
+      {/* Publishing frequency bars */}
+      <div className="relative h-24 bg-black/20 overflow-hidden flex items-end gap-[2px] p-[1px] mb-5">
+        {dailyActivity.map((count, i) => (
+          <div
+            key={i}
+            className={`flex-1 ${count > 0 ? "bg-pink-500/70" : "bg-pink-500/10"}`}
+            style={{
+              height: `${count > 0 ? Math.max(20, count * 33) : 5}%`,
+              minWidth: "4px",
+              borderRadius: 0,
+              imageRendering: "pixelated" as const,
+            }}
+          />
+        ))}
+        <div className="absolute top-1 left-1 text-[8px] font-tech text-pink-600">
+          PUBLISHING FREQUENCY
+        </div>
+      </div>
 
       {/* Service status list */}
       <div className="mt-5 space-y-4 font-tech text-[10px] text-pink-300/70">

@@ -10,15 +10,15 @@
 import { TechBorder } from "@/components/ui/TechBorder";
 import { TypeWriter } from "./TypeWriter";
 
-/* ── static data ─────────────────────────────────────────────── */
+/* ── props ───────────────────────────────────────────────────── */
 
-const specs: [string, string][] = [
-  ["Designation", "fri"],
-  ["Voice Model", "Bella [ElevenLabs]"],
-  ["Brain", "Minimax-M2.7"],
-  ["Memory", "OrbitOS"],
-  ["Version", "v3.28"],
-];
+interface IdentityMatrixProps {
+  diaryCount: number;
+  weeklyCount: number;
+  lastEntryAge: string;
+}
+
+/* ── static data ─────────────────────────────────────────────── */
 
 const sayings = [
   "まず動かせ。それから速くしろ。",
@@ -33,7 +33,14 @@ const sayings = [
 
 /* ── component ───────────────────────────────────────────────── */
 
-export function IdentityMatrix() {
+export function IdentityMatrix({ diaryCount, weeklyCount, lastEntryAge }: IdentityMatrixProps) {
+  const specs: [string, string][] = [
+    ["Designation", "fri"],
+    ["Brain", "Minimax-M2.7"],
+    ["Entries", `${diaryCount} diary · ${weeklyCount} weekly`],
+    ["Last Post", lastEntryAge],
+    ["Version", "v3.28"],
+  ];
   return (
     <TechBorder className="p-5">
       <h2 className="text-lg font-bold font-vt323 text-pink-400 mb-5 flex items-center gap-2">
