@@ -1,13 +1,14 @@
 /**
- * [INPUT]:  react hooks, diary text fragments from page.tsx
- * [OUTPUT]: ArcReactor — video core, rings, crosshair, uptime, matrix rain columns
+ * [INPUT]:  react hooks, diary fragments, MatrixRain
+ * [OUTPUT]: ArcReactor — video core, rings, crosshair, uptime, matrix rain wrapping around circle
  * [POS]:    home/ center-column visual centerpiece
  * [PROTOCOL]: update this header on change, then check CLAUDE.md
  */
 
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
+import { MatrixRain } from "./MatrixRain";
 
 /* ------------------------------------------------------------------ */
 /*  Constants                                                          */
@@ -15,7 +16,6 @@ import { useState, useEffect, useMemo } from "react";
 
 const STATUSES = ["Standby", "Replying", "Thinking"] as const;
 const UPTIME_ORIGIN = new Date(2026, 0, 30, 22, 0, 0);
-const COLUMN_COUNT = 6;
 
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
@@ -36,36 +36,6 @@ function formatUptime(start: Date): string {
 }
 
 /* ------------------------------------------------------------------ */
-/*  MatrixColumn — a single falling text column                        */
-/* ------------------------------------------------------------------ */
-
-function MatrixColumn({ fragments, speed, left }: {
-  fragments: string[];
-  speed: number;
-  left: string;
-}) {
-  const text = useMemo(() => fragments.join("\n"), [fragments]);
-
-  return (
-    <div
-      className="absolute top-0 overflow-hidden pointer-events-none"
-      style={{ left, width: "1.2em", height: "100%" }}
-    >
-      <div
-        className="font-vt323 text-[10px] leading-[1.4] text-pink-500/20 whitespace-pre-wrap break-all"
-        style={{
-          animation: `matrix-fall ${speed}s linear infinite`,
-          writingMode: "vertical-rl",
-          textOrientation: "mixed",
-        }}
-      >
-        {text}
-      </div>
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
 /*  Component                                                          */
 /* ------------------------------------------------------------------ */
 
@@ -81,17 +51,6 @@ export default function ArcReactor({ fragments = [] }: { fragments?: string[] })
     return () => clearInterval(id);
   }, []);
 
-  // split fragments into columns
-  const columns = useMemo(() => {
-    const cols: string[][] = Array.from({ length: COLUMN_COUNT }, () => []);
-    fragments.forEach((f, i) => cols[i % COLUMN_COUNT].push(f));
-    return cols;
-  }, [fragments]);
-
-  // column positions — spread across the container, avoiding center (reactor)
-  const positions = ["5%", "12%", "20%", "78%", "85%", "93%"];
-  const speeds = [18, 24, 20, 22, 16, 26];
-
   return (
     <div className="flex-1 relative flex items-center justify-center">
       {/* ---- crosshair grid ---- */}
@@ -100,15 +59,8 @@ export default function ArcReactor({ fragments = [] }: { fragments?: string[] })
         <div className="absolute top-1/2 left-0 w-full h-px bg-gradient-to-r from-transparent via-pink-500/20 to-transparent" />
       </div>
 
-      {/* ---- matrix rain columns ---- */}
-      {columns.map((col, i) => (
-        <MatrixColumn
-          key={i}
-          fragments={col}
-          speed={speeds[i]}
-          left={positions[i]}
-        />
-      ))}
+      {/* ---- matrix rain — text flows around the circle ---- */}
+      {fragments.length > 0 && <MatrixRain fragments={fragments} />}
 
       {/* ---- reactor core ---- */}
       <div className="arc-reactor relative z-10">
