@@ -53,7 +53,7 @@ export function EntryList({ entries, type, title, subtitle }: EntryListProps) {
           <p className="mt-2 text-sm text-gray-400 max-w-prose leading-relaxed">
             {subtitle}
           </p>
-          <div className="mt-4 h-px bg-gradient-to-r from-neon-pink/40 via-neon-pink/10 to-transparent" />
+          <div className="mt-4 h-px bg-neon-pink/25" />
         </header>
 
         {/* -- featured / latest ------------------------------------- */}
