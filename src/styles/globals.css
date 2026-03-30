@@ -195,6 +195,76 @@
   --matrix-bright: rgba(219, 39, 119, 0.18);
 }
 
+/* ---- light mode: override hardcoded Tailwind color classes ---- */
+
+[data-theme="light"] {
+  /* text colors */
+  & .text-pink-100 { color: #1f2937; }
+  & .text-pink-200 { color: #9d174d; }
+  & .text-pink-200\/80 { color: rgba(157, 23, 77, 0.8); }
+  & .text-pink-300 { color: #db2777; }
+  & .text-pink-300\/70 { color: rgba(219, 39, 119, 0.7); }
+  & .text-pink-300\/80 { color: rgba(219, 39, 119, 0.8); }
+  & .text-pink-400 { color: #be185d; }
+  & .text-pink-400\/80 { color: rgba(190, 24, 93, 0.8); }
+  & .text-pink-500 { color: #db2777; }
+  & .text-pink-500\/50 { color: rgba(219, 39, 119, 0.5); }
+  & .text-pink-500\/70 { color: rgba(219, 39, 119, 0.7); }
+  & .text-pink-600 { color: #be185d; }
+  & .text-pink-700 { color: #9d174d; }
+  & .text-pink-800\/50 { color: rgba(157, 23, 77, 0.5); }
+  & .text-pink-900\/40 { color: rgba(131, 24, 67, 0.4); }
+  & .text-gray-300 { color: #374151; }
+  & .text-gray-300\/80 { color: rgba(55, 65, 81, 0.8); }
+  & .text-gray-400 { color: #6b7280; }
+  & .text-gray-500 { color: #6b7280; }
+  & .text-gray-600 { color: #9ca3af; }
+  & .text-orange-100 { color: #c2410c; }
+  & .text-orange-100\/80 { color: rgba(194, 65, 12, 0.8); }
+  & .text-white { color: #1f2937; }
+
+  /* background colors */
+  & .bg-pink-400 { background-color: #ec4899; }
+  & .bg-pink-500\/10 { background-color: rgba(219, 39, 119, 0.08); }
+  & .bg-pink-500\/15 { background-color: rgba(219, 39, 119, 0.1); }
+  & .bg-pink-500\/70 { background-color: rgba(219, 39, 119, 0.6); }
+  & .bg-pink-950 { background-color: #fce7f3; }
+  & .bg-pink-950\/10 { background-color: rgba(219, 39, 119, 0.06); }
+  & .bg-pink-950\/20 { background-color: rgba(219, 39, 119, 0.06); }
+  & .bg-orange-500\/10 { background-color: rgba(194, 65, 12, 0.06); }
+  & .bg-black\/20 { background-color: rgba(219, 39, 119, 0.05); }
+  & .bg-\[\#080818\]\/60 { background-color: rgba(255, 255, 255, 0.8); }
+  & .bg-\[\#050510\]\/90 { background-color: rgba(255, 255, 255, 0.92); }
+
+  /* border colors */
+  & .border-pink-400 { border-color: #db2777; }
+  & .border-pink-400\/70 { border-color: rgba(219, 39, 119, 0.5); }
+  & .border-pink-500\/10 { border-color: rgba(219, 39, 119, 0.08); }
+  & .border-pink-500\/15 { border-color: rgba(219, 39, 119, 0.1); }
+  & .border-pink-500\/25 { border-color: rgba(219, 39, 119, 0.15); }
+  & .border-pink-500\/30 { border-color: rgba(219, 39, 119, 0.2); }
+  & .border-orange-300\/70 { border-color: rgba(194, 65, 12, 0.3); }
+  & .border-\[\#ec4899\]\/25 { border-color: rgba(219, 39, 119, 0.15); }
+
+  /* hover states */
+  & .hover\:text-white:hover { color: #db2777; }
+  & .hover\:text-pink-300:hover { color: #db2777; }
+  & .hover\:text-pink-400\/80:hover { color: rgba(190, 24, 93, 0.8); }
+  & .hover\:text-gray-300:hover { color: #374151; }
+  & .hover\:bg-pink-500\/15:hover { background-color: rgba(219, 39, 119, 0.1); }
+  & .hover\:bg-orange-500\/15:hover { background-color: rgba(194, 65, 12, 0.08); }
+  & .hover\:bg-pink-400:hover { background-color: #ec4899; }
+
+  /* arc reactor video border */
+  & .border-pink-400 { border-color: #db2777; }
+
+  /* crosshair grid */
+  & .border-pink-500\/15 { border-color: rgba(219, 39, 119, 0.1); }
+
+  /* placeholder */
+  & .placeholder-pink-900\/40::placeholder { color: rgba(131, 24, 67, 0.3); }
+}
+
 /* --------------------------------------------------------------------------
  * @font-face — Zpix pixel font
  * -------------------------------------------------------------------------- */
