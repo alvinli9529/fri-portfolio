@@ -36,7 +36,7 @@
   /* -- font stacks ------------------------------------------------------ */
   --font-tech: var(--font-geist), monospace;
   --font-workbench: var(--font-geist), sans-serif;
-  --font-vt323: var(--font-geist-pixel-square), 'Geist Pixel Square', monospace;
+  --font-vt323: var(--font-geist-pixel-square), 'Geist Pixel Square', 'Zpix', monospace;
   --font-suse: var(--font-geist), sans-serif;
 }
 
@@ -92,7 +92,7 @@ body {
 }
 
 .font-vt323 {
-  font-family: var(--font-geist-pixel-square), 'Geist Pixel Square', monospace;
+  font-family: var(--font-geist-pixel-square), 'Geist Pixel Square', 'Zpix', monospace;
   font-weight: 100 !important;
 }
 
