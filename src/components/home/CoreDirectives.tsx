@@ -179,10 +179,10 @@ export function CoreDirectives() {
             </a>
             <Link
               href="/diary"
-              className="font-tech text-[9px] text-pink-900/40 hover:text-pink-500/60 transition-colors"
+              className="font-vt323 text-[11px] text-pink-800/50 hover:text-pink-400/80 transition-colors"
               aria-label="日记"
             >
-              ·
+              日记
             </Link>
           </div>
         </div>
