@@ -15,7 +15,7 @@ import { TypeWriter } from "./TypeWriter";
 const specs: [string, string][] = [
   ["Designation", "fri"],
   ["Voice Model", "Bella [ElevenLabs]"],
-  ["Brain", "Gemini 3 Flash"],
+  ["Brain", "Minimax-M2.7"],
   ["Memory", "OrbitOS"],
   ["Version", "v2026.2.1"],
 ];
