@@ -1,239 +1,193 @@
 <p align="center">
-  <img src="public/favicon.png" width="48" height="48" alt="FRI" />
+  <img src="public/favicon.png" width="40" height="40" alt="FRI" />
 </p>
 
-<h1 align="center">F R I</h1>
-
-<p align="center">
-  <strong>Agent-powered portfolio & content platform</strong><br/>
-  <sub>Let your AI write the diary. Curate the newsletter. Guard the terminal.</sub>
-</p>
+<h3 align="center">FRI</h3>
 
 <p align="center">
-  <a href="https://fri.z1han.com">Live Site</a> &nbsp;/&nbsp;
-  <a href="#use-with-openclaw">OpenClaw Guide</a> &nbsp;/&nbsp;
-  <a href="#deploy-your-own">Deploy Your Own</a>
+  Your AI writes. Git publishes. The site is already live.
 </p>
+
+<p align="center">
+  <a href="https://fri.z1han.com">Live Demo</a> &middot;
+  <a href="#how-it-works">How It Works</a> &middot;
+  <a href="#plug-in-your-agent">Agent Setup</a> &middot;
+  <a href="#ship-it">Deploy</a>
+</p>
+
+---
+
+FRI is an open-source portfolio that publishes itself. Point an AI agent at a git repo, give it a markdown template, and it writes diary entries, curates newsletters, maintains a reading log — whatever you want. The site rebuilds on every push. No CMS. No database. Just git.
+
+The homepage is a cyberpunk dashboard with real stats, [Pretext](https://github.com/chenglou/pretext)-powered matrix rain, and a live AI terminal where visitors talk to your agent directly.
 
 <br/>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js" />
-  <img src="https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript&logoColor=white" />
-  <img src="https://img.shields.io/badge/Tailwind-4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" />
-  <img src="https://img.shields.io/badge/Vercel-SSG-000?style=flat-square&logo=vercel" />
-  <img src="https://img.shields.io/badge/AI-Minimax%20M2.7-ec4899?style=flat-square" />
+  <a href="https://fri.z1han.com">
+    <img src="https://fri.z1han.com/og-image.png" width="640" alt="FRI Dashboard" />
+  </a>
 </p>
 
----
+<br/>
 
-## The Idea
-
-You have an AI agent. It can write. It can curate. It can push to git.
-
-**FRI turns that into a website.**
-
-Your agent pushes a markdown file to a repo. FRI picks it up, renders it with link preview cards and pixel typography, and deploys it — automatically. No CMS, no database, no manual step.
-
-The homepage is a cyberpunk dashboard. Real stats. Real uptime. A terminal where visitors talk to your AI directly. Matrix rain flowing around a central reactor core, text pulled from your diary entries via [Pretext](https://github.com/chenglou/pretext).
-
-Dark mode. Light mode. One toggle, zero hardcoded colors.
-
----
-
-## Architecture
+## How It Works
 
 ```
- YOU / YOUR AGENT                        VISITORS
-       |                                     |
-       v                                     v
- +-----------------+               +------------------+
- | fri-content     |  webhook -->  | fri-portfolio    |
- | (private repo)  |  triggers     | (this repo)      |
- |                 |  rebuild      |                  |
- | diary/*.md      |               | src/             |
- | weekly/*.md     |               | scripts/         |
- +-----------------+               | public/          |
-                                   +------------------+
-                                          |
-                                     Vercel SSG
-                                          |
-                                    fri.z1han.com
+Your agent writes diary/2026-03-31.md
+        ↓
+Pushes to your private content repo
+        ↓
+Webhook triggers Vercel rebuild
+        ↓
+Site is live. You didn't touch a keyboard.
 ```
 
-> **Code is public. Content is private.** At build time, a script pulls markdown from the private repo. A webhook triggers rebuild on every push.
+Code is public. Content is private. Two repos:
+
+| Repo | What's in it | Visibility |
+|------|-------------|------------|
+| `fri-portfolio` | Next.js app, components, styles | Public |
+| `fri-content` | `diary/*.md`, `weekly/*.md` | Private |
+
+At build time, a [script](scripts/fetch-content.sh) pulls markdown from the private repo. A GitHub webhook triggers rebuild on every push.
 
 ---
 
-## Use with OpenClaw
+## Plug In Your Agent
 
-The real power: **AI agents publish content by pushing markdown to git.** Works with [OpenClaw](https://openclaw.com), Claude Code, Codex, or any agent that can `git push`.
+No API. No webhook integration. No SDK. Your agent just needs to write a markdown file and `git push`. That's the entire publishing interface.
 
-### Give your agent this prompt
+### The prompt
+
+Paste this into [OpenClaw](https://openclaw.com), Claude Code, or any agent with git access:
 
 ```
-You are a personal publishing agent. You write content and publish it
-by pushing markdown files to a GitHub repo.
+You publish content to my website by pushing markdown files to my GitHub repo.
 
-DIARY ENTRIES — push to diary/YYYY-MM-DD.md
+DIARY — push to diary/YYYY-MM-DD.md
 ---
 title: "Entry title"
 date: YYYY-MM-DD
-summary: "Optional one-liner"
+summary: "One-liner for the list page"
 ---
-Content in markdown. Write naturally. Chinese or English.
+Write naturally in markdown.
 
-WEEKLY NEWSLETTERS — push to weekly/{slug}.md
+WEEKLY — push to weekly/{slug}.md
 ---
 title: "Newsletter Title"
 date: YYYY-MM-DD
 summary: "What this issue covers"
 cover: "https://example.com/image.jpg"
 ---
-Newsletter content. Bare URLs on their own line become
-rich link preview cards automatically.
+Newsletter in markdown. Bare URLs on their own line
+become rich link preview cards automatically.
 
 RULES:
 - One file per entry
-- Frontmatter required (title + date minimum)
-- Commit and push — the site rebuilds automatically
+- title + date in frontmatter required
+- Commit and push — the site rebuilds on its own
 ```
 
-### Workflow ideas
+### What to tell your agent
 
-| Agent | Schedule | What it does |
-|-------|----------|--------------|
-| **Diary writer** | Every night | Reflects on the day, pushes `diary/YYYY-MM-DD.md` |
-| **Newsletter curator** | Every Sunday | Collects the week's best links, writes commentary, pushes `weekly/YYYY-WNN.md` |
-| **Continuous collector** | On demand | You share links throughout the week, agent compiles them into a Friday newsletter |
-| **Reading log** | After each article | Agent summarizes what you read, appends to a running weekly draft |
+| Use case | Prompt idea |
+|----------|------------|
+| Daily diary | *"Every night, write a diary entry reflecting on my day. Push to `diary/YYYY-MM-DD.md`."* |
+| Weekly newsletter | *"Every Sunday, collect the best design & engineering links. Write commentary. Push to `weekly/YYYY-WNN.md`."* |
+| Continuous collector | *"When I share a link, save it. Every Friday, compile them into a newsletter."* |
+| Reading log | *"After each article I share, summarize it and append to a running weekly draft."* |
 
 ---
 
-## Deploy Your Own
+## Ship It
 
-### 1. Fork & clone
+### Option A: Give this repo to your agent
+
+Tell your OpenClaw or Claude Code agent:
+
+```
+Fork https://github.com/bravohenry/fri-portfolio and deploy it to Vercel.
+Create a private repo for my content. Set up the webhook so the site
+rebuilds when content is pushed. Here's my Vercel token: ...
+```
+
+Your agent handles the rest.
+
+### Option B: Do it yourself
 
 ```bash
+# 1. Fork and clone
 gh repo fork bravohenry/fri-portfolio --clone
 cd fri-portfolio
-```
 
-### 2. Create a private content repo
+# 2. Create your private content repo
+gh repo create my-content --private
 
-```bash
-gh repo create your-username/my-content --private
-cd /tmp/my-content && mkdir diary weekly && git add . && git commit -m "init" && git push
-```
-
-### 3. Set up Vercel
-
-```bash
+# 3. Deploy to Vercel
 vercel link
-vercel env add CONTENT_GITHUB_TOKEN production   # GitHub PAT with repo access
-vercel env add MINIMAX_API_KEY production         # For AI chat (optional)
+vercel env add CONTENT_GITHUB_TOKEN production  # GitHub PAT with repo access
+vercel env add MINIMAX_API_KEY production        # optional — powers AI chat
 vercel --prod
-```
 
-### 4. Wire up auto-rebuild
-
-Create a deploy hook in Vercel Dashboard > Settings > Git > Deploy Hooks, then:
-
-```bash
-gh api repos/{you}/{my-content}/hooks \
-  --method POST \
-  -f name=web \
-  -f 'config[url]={deploy-hook-url}' \
-  -f 'config[content_type]=json' \
-  -F 'active=true' \
-  -f 'events[]=push'
-```
-
-**Done.** Your agent pushes content, the site rebuilds.
-
----
-
-## Content Format
-
-```yaml
----
-title: "Article Title"
-date: 2026-03-31
-summary: "Optional — shows on list page"
-cover: "https://example.com/cover.jpg"  # Optional — thumbnail on cards
----
-
-Markdown body.
-
-Bare URLs on their own line auto-render as link preview cards:
-
-https://example.com/cool-article
+# 4. Wire up auto-rebuild
+# Create a deploy hook: Vercel Dashboard → Settings → Git → Deploy Hooks
+# Then connect it to your content repo:
+gh api repos/YOU/my-content/hooks --method POST \
+  -f name=web -f 'config[url]=YOUR_DEPLOY_HOOK' \
+  -f 'config[content_type]=json' -F active=true -f 'events[]=push'
 ```
 
 ---
 
-## Features
+## What's On Screen
 
 | | |
-|---|---|
-| **AI Terminal** | Visitors chat with FRI directly. Powered by Minimax M2.7. Has personality — will roast you back. |
-| **Matrix Rain** | Diary text flows around the reactor core using Pretext per-line width calculation. |
-| **Link Previews** | Bare URLs in markdown become glass-panel cards with OG metadata, fetched at build time. |
-| **Dark / Light** | One toggle. All colors via CSS variables. Zero hardcoded values. |
-| **Real Stats** | Entry count, word count, publishing frequency — all computed from actual content at build time. |
-| **SSG** | Every content page is static HTML. Zero client JS on content pages. |
+|:--|:--|
+| **AI Terminal** | Visitors chat with your agent. It has personality — it will roast you back. |
+| **Matrix Rain** | Your diary text flows around the reactor core, laid out per-line via Pretext. |
+| **Link Previews** | Bare URLs in markdown become glass-panel cards with OG metadata at build time. |
+| **Dark / Light** | One toggle. All colors via CSS variables. Zero hardcoded values in components. |
+| **Real Stats** | Entry count, word count, publishing frequency — computed from actual content. |
+| **Pure SSG** | Content pages are static HTML. Zero client JS. |
 
 ---
 
-## Stack
+## Under the Hood
 
-| Layer | Tech |
-|-------|------|
+| | |
+|:--|:--|
 | Framework | Next.js 16 (App Router, SSG) |
 | Language | TypeScript |
-| Styling | Tailwind CSS v4, CSS custom properties |
+| Styling | Tailwind CSS v4, CSS custom properties for theming |
 | Text layout | [@chenglou/pretext](https://github.com/chenglou/pretext) |
-| Fonts | Geist (Sans, Mono, Pixel Square), Zpix |
+| Fonts | [Geist](https://vercel.com/font) (Sans, Mono, Pixel Square) + [Zpix](https://github.com/SolidZORO/zpix-pixel-font) |
 | AI chat | Minimax M2.7 |
-| Markdown | marked + custom link preview pipeline |
+| Markdown | marked + OG link preview pipeline |
 | Deploy | Vercel |
 
----
-
-## Project Structure
+<details>
+<summary>Project structure</summary>
 
 ```
 src/
-  app/                Routes (/, /diary, /weekly, /diary/[slug], /weekly/[slug])
+  app/                Routes: /, /diary, /weekly, /diary/[slug], /weekly/[slug]
     api/chat/         Minimax M2.7 streaming endpoint
   components/
-    home/             Dashboard (ArcReactor, Terminal, MatrixRain, Diagnostics...)
+    home/             Dashboard: ArcReactor, Terminal, MatrixRain, Diagnostics...
     content/          EntryList, EntryPage, CoverImage
     ui/               GlassPanel, TechBorder, ThemeToggle
-  lib/                content.ts, markdown.ts, og.ts, stats.ts
-  styles/             globals.css — theme system, keyframes, dark/light tokens
+  lib/                content.ts → markdown.ts → og.ts → stats.ts
+  styles/             globals.css: theme tokens, keyframes, dark/light modes
 scripts/
-  fetch-content.sh    Build-time content fetch from private repo
+  fetch-content.sh    Pulls content from private repo at build time
 ```
 
----
-
-## Local Development
-
-```bash
-git clone https://github.com/bravohenry/fri-portfolio.git
-cd fri-portfolio
-
-# Content is gitignored — add your own or clone from your content repo
-mkdir -p content/diary content/weekly
-
-npm install
-npm run dev
-```
+</details>
 
 ---
 
 <p align="center">
   <sub>MIT License</sub><br/>
-  <sub>Built by <a href="https://z1han.com">Zihan</a> + Friday</sub>
+  <sub>Built by a human and an AI. Which one wrote which part is left as an exercise.</sub>
 </p>
