@@ -30,20 +30,12 @@ export function ThemeToggle() {
     <button
       type="button"
       onClick={toggle}
-      className="p-1.5 transition-colors hover:opacity-80"
+      className="xp-btn-min"
+      style={{ width: '21px', height: '21px', fontSize: '10px' }}
       aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
       title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
     >
-      <img
-        src={
-          theme === "dark"
-            ? "https://unpkg.com/pixelarticons@1.8.1/svg/sun.svg"
-            : "https://unpkg.com/pixelarticons@1.8.1/svg/moon.svg"
-        }
-        className="pa-icon w-4 h-4 inline-block"
-        alt=""
-        aria-hidden="true"
-      />
+      {theme === "dark" ? "☀" : "☾"}
     </button>
   );
 }

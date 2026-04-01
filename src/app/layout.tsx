@@ -12,7 +12,7 @@ import { GeistPixelSquare } from "geist/font/pixel";
 import "@/styles/globals.css";
 
 export const metadata: Metadata = {
-  title: "FRI Interface v3.28",
+  title: "FRI Interface v3.28 — Windows Edition",
   description: "Intelligent Assistant — Portfolio Shell for Friday",
   icons: { icon: "/favicon.png" },
 };
@@ -27,7 +27,7 @@ export default function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: `try{var t=localStorage.getItem('fri-theme');if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}` }} />
       </head>
-      <body className="font-suse">{children}</body>
+      <body style={{ fontFamily: "'Tahoma', 'Trebuchet MS', sans-serif", fontSize: '11px' }}>{children}</body>
     </html>
   );
 }

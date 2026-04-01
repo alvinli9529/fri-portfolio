@@ -51,9 +51,17 @@ export function TypeWriter({ sayings }: { sayings: string[] }) {
   }, [sayings]);
 
   return (
-    <div className="mt-6 p-3 text-xs font-vt323" style={{ background: 'var(--bg-surface)', color: 'var(--text-value)' }}>
+    <div
+      className="mt-0"
+      style={{
+        fontFamily: 'Lucida Console, Courier New, monospace',
+        fontSize: '10px',
+        color: '#0a246a',
+        lineHeight: '1.4',
+      }}
+    >
       <span>{text}</span>
-      <span className="quote-cursor">|</span>
+      <span className="quote-cursor" style={{ color: '#316ac5' }}>|</span>
     </div>
   );
 }
