@@ -16,7 +16,7 @@ import { CoverImage } from "@/components/content/CoverImage";
 /*  Types                                                              */
 /* ------------------------------------------------------------------ */
 
-interface WeeklyEntry {
+interface ContentEntry {
   slug: string;
   title: string;
   date: string;
@@ -25,10 +25,11 @@ interface WeeklyEntry {
 }
 
 interface WidgetPanelProps {
-  weeklyEntries: WeeklyEntry[];
+  dailyEntries: ContentEntry[];
+  weeklyEntries: ContentEntry[];
 }
 
-type Tab = "weekly" | "stack";
+type Tab = "daily" | "weekly" | "stack";
 
 /* ------------------------------------------------------------------ */
 /*  Stack data                                                         */
@@ -48,8 +49,8 @@ const modules = [
 /*  Component                                                          */
 /* ------------------------------------------------------------------ */
 
-export function WidgetPanel({ weeklyEntries }: WidgetPanelProps) {
-  const [tab, setTab] = useState<Tab>("weekly");
+export function WidgetPanel({ dailyEntries, weeklyEntries }: WidgetPanelProps) {
+  const [tab, setTab] = useState<Tab>("daily");
   const barsRef = useRef<(HTMLDivElement | null)[]>([]);
 
   /* jitter effect for stack bars */
@@ -88,38 +89,71 @@ export function WidgetPanel({ weeklyEntries }: WidgetPanelProps) {
       {/* ---- Tab switcher ---- */}
       <div className="flex items-center justify-between mb-4 shrink-0">
         <div className="flex gap-1">
-          <button
-            onClick={() => setTab("weekly")}
-            className="px-2 py-1 text-[10px] font-vt323 tracking-widest transition-colors border border-transparent"
-            style={
-              tab === "weekly"
-                ? { color: 'var(--text-tab-active)', background: 'var(--bg-tab-active)', border: '1px solid var(--border-tab-active)' }
-                : { color: 'var(--text-tab-inactive)' }
-            }
-          >
-            WEEKLY
-          </button>
-          <button
-            onClick={() => setTab("stack")}
-            className="px-2 py-1 text-[10px] font-vt323 tracking-widest transition-colors border border-transparent"
-            style={
-              tab === "stack"
-                ? { color: 'var(--text-tab-active)', background: 'var(--bg-tab-active)', border: '1px solid var(--border-tab-active)' }
-                : { color: 'var(--text-tab-inactive)' }
-            }
-          >
-            STACK
-          </button>
+          {(["daily", "weekly", "stack"] as const).map((t) => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className="px-2 py-1 text-[10px] font-vt323 tracking-widest transition-colors border border-transparent"
+              style={
+                tab === t
+                  ? { color: 'var(--text-tab-active)', background: 'var(--bg-tab-active)', border: '1px solid var(--border-tab-active)' }
+                  : { color: 'var(--text-tab-inactive)' }
+              }
+            >
+              {t.toUpperCase()}
+            </button>
+          ))}
         </div>
-        {tab === "weekly" && (
+        {(tab === "daily" || tab === "weekly") && (
           <Link
-            href="/weekly"
+            href={`/${tab}`}
             className="text-[9px] font-vt323 text-neon-coral/60 hover:text-neon-coral tracking-widest transition-colors"
           >
             VIEW ALL →
           </Link>
         )}
       </div>
+
+      {/* ---- Daily digest preview ---- */}
+      {tab === "daily" && (
+        <div className="custom-scroll overflow-y-auto pr-1 space-y-2 flex-1">
+          {dailyEntries.slice(0, 5).map((entry) => (
+            <Link
+              key={entry.slug}
+              href={`/daily/${entry.slug}`}
+              className="group flex gap-3 p-2 transition-all border border-transparent"
+            >
+              <div className="flex-1 min-w-0">
+                <h3
+                  className="text-xs font-vt323 transition-colors truncate"
+                  style={{ color: 'var(--text-card-title)' }}
+                >
+                  {entry.title}
+                </h3>
+                <time
+                  className="text-[9px] font-vt323 tracking-wider"
+                  style={{ color: 'var(--text-dim)' }}
+                >
+                  {entry.date}
+                </time>
+                {entry.summary && (
+                  <p
+                    className="text-[9px] line-clamp-2 mt-0.5"
+                    style={{ color: 'var(--text-dim)' }}
+                  >
+                    {entry.summary}
+                  </p>
+                )}
+              </div>
+            </Link>
+          ))}
+          {dailyEntries.length === 0 && (
+            <p className="text-[10px] font-vt323 py-4 text-center" style={{ color: 'var(--text-dim)' }}>
+              No digests yet — awaiting first dispatch.
+            </p>
+          )}
+        </div>
+      )}
 
       {/* ---- Weekly preview ---- */}
       {tab === "weekly" && (

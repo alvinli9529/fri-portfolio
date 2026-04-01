@@ -19,6 +19,7 @@ import { getEntries } from "@/lib/content";
 export default async function Home() {
   const stats = getSiteStats();
   const weeklyEntries = await getEntries("weekly");
+  const dailyEntries = await getEntries("daily");
   const diaryFragments = getDiaryFragments();
 
   return (
@@ -41,7 +42,10 @@ export default async function Home() {
               weeklyCount={stats.weeklyCount}
               lastEntryAge={stats.lastEntryAge}
             />
-            <WidgetPanel weeklyEntries={weeklyEntries.map(({ slug, title, date, summary, cover }) => ({ slug, title, date, summary, cover }))} />
+            <WidgetPanel
+              dailyEntries={dailyEntries.map(({ slug, title, date, summary }) => ({ slug, title, date, summary }))}
+              weeklyEntries={weeklyEntries.map(({ slug, title, date, summary, cover }) => ({ slug, title, date, summary, cover }))}
+            />
           </div>
 
           <div
