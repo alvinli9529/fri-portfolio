@@ -47,7 +47,7 @@ export function EntryPage({ entry, type, backHref }: EntryPageProps) {
           <time className="font-vt323 text-xs tracking-widest text-neon-coral opacity-70">
             {entry.date}
           </time>
-          <h1 className="mt-2 font-vt323 text-2xl tracking-widest text-pink-text">
+          <h1 className="mt-2 font-vt323 text-2xl tracking-widest" style={{ color: 'var(--text-primary)' }}>
             {entry.title}
           </h1>
         </header>

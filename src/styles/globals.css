@@ -813,6 +813,14 @@ body {
   text-decoration-color: var(--diary-link-underline);
 }
 
+.diary-content a.link-preview-card {
+  text-decoration: none;
+}
+
+.diary-content a.link-preview-card .glass-panel:hover {
+  border-color: var(--bg-panel-hover-border);
+}
+
 .diary-content hr {
   border: none;
   border-top: 1px solid var(--diary-hr);

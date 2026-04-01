@@ -20,31 +20,42 @@ marked.setOptions({
 const URL_REGEX = /^https?:\/\/\S+$/;
 
 function buildPreviewCard(url: string, og: { title: string; description: string; image: string; siteName: string }): string {
+  const hostname = og.siteName || new URL(url).hostname;
+  const favicon = `https://www.google.com/s2/favicons?domain=${new URL(url).hostname}&sz=32`;
+  const displayTitle = og.title && og.title !== url ? og.title : new URL(url).hostname.replace(/^www\./, "");
   const descBlock = og.description
-    ? `<div class="text-xs text-gray-400 line-clamp-2">${og.description}</div>`
+    ? `<div class="text-xs line-clamp-2" style="color:var(--text-muted)">${og.description}</div>`
     : "";
+  const urlDisplay = `<div class="text-[10px] truncate mt-1" style="color:var(--text-dim)">${url}</div>`;
 
   if (og.image) {
-    return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="block my-4 no-underline">
-      <div class="glass-panel overflow-hidden hover:border-pink-400/60 transition-colors flex">
-        <div class="w-28 sm:w-36 shrink-0 overflow-hidden border-r border-pink-500/15">
+    return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="block my-4 no-underline link-preview-card">
+      <div class="glass-panel overflow-hidden transition-colors flex">
+        <div class="w-28 sm:w-36 shrink-0 overflow-hidden border-r" style="border-color:var(--border-subtle)">
           <img src="${og.image}" alt="" class="w-full h-full object-cover" />
         </div>
         <div class="p-3 flex-1 min-w-0 flex flex-col justify-center">
-          <div class="text-[10px] font-vt323 text-pink-500/60 mb-0.5 tracking-wider">${og.siteName}</div>
-          <div class="text-sm font-vt323 text-pink-200 mb-1 truncate">${og.title}</div>
+          <div class="flex items-center gap-1.5 mb-1">
+            <img src="${favicon}" alt="" class="w-4 h-4 shrink-0" />
+            <span class="text-[10px] font-vt323 tracking-wider" style="color:var(--text-accent-soft)">${hostname}</span>
+          </div>
+          <div class="text-sm font-vt323 mb-1 truncate" style="color:var(--text-primary)">${displayTitle}</div>
           ${descBlock}
         </div>
       </div>
     </a>`;
   }
 
-  return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="block my-4 no-underline">
-      <div class="glass-panel overflow-hidden hover:border-pink-400/60 transition-colors">
+  return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="block my-4 no-underline link-preview-card">
+      <div class="glass-panel overflow-hidden transition-colors">
         <div class="p-3">
-          <div class="text-[10px] font-vt323 text-pink-500/60 mb-0.5 tracking-wider">${og.siteName}</div>
-          <div class="text-sm font-vt323 text-pink-200 mb-1">${og.title}</div>
+          <div class="flex items-center gap-1.5 mb-1">
+            <img src="${favicon}" alt="" class="w-4 h-4 shrink-0" />
+            <span class="text-[10px] font-vt323 tracking-wider" style="color:var(--text-accent-soft)">${hostname}</span>
+          </div>
+          <div class="text-sm font-vt323 mb-1" style="color:var(--text-primary)">${displayTitle}</div>
           ${descBlock}
+          ${urlDisplay}
         </div>
       </div>
     </a>`;
