@@ -10,6 +10,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import type { SiteStats } from "@/lib/stats";
+import { useSkin } from "@/lib/skin";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -118,6 +119,7 @@ async function* parseSSE(response: Response): AsyncGenerator<string> {
 
 export function Terminal({ stats }: TerminalProps) {
   const router = useRouter();
+  const { skin } = useSkin();
   const [expanded, setExpanded] = useState(false);
   const slashReplies = useMemo(() => buildSlashReplies(stats), [stats]);
   const [lines, setLines] = useState<Line[]>(() => buildInitialLines(stats));
@@ -296,6 +298,68 @@ export function Terminal({ stats }: TerminalProps) {
     }
   }
 
+  /* ---- Sci-fi skin — original glass panel terminal ---- */
+  if (skin === "scifi") {
+    return (
+      <div
+        id="session-panel"
+        className={`h-1/3 min-h-[200px] md:min-h-0 glass-panel tech-border rounded-t-lg p-4 md:p-6 flex flex-col justify-end mt-4 ${expanded ? "expanded" : ""}`}
+      >
+        <div className="corner-bl absolute bottom-0 left-0 w-3 h-3" />
+        <div className="corner-br absolute bottom-0 right-0 w-3 h-3" />
+
+        <button
+          type="button"
+          className="absolute top-2 right-2 md:right-4 p-2 md:p-1 min-w-[44px] min-h-[44px] md:min-w-0 md:min-h-0 flex items-center justify-center transition-colors z-10 -translate-y-1"
+          style={{ color: "var(--text-accent)" }}
+          title="Expand / Collapse"
+          aria-label="Toggle session panel"
+          onClick={() => setExpanded((e) => !e)}
+        >
+          <img src="https://unpkg.com/pixelarticons@1.8.1/svg/chevron-up.svg" className="pa-icon w-5 h-5 session-chevron inline-block" alt="" aria-hidden="true" />
+        </button>
+
+        <div ref={scrollRef} className="flex-1 overflow-y-auto custom-scroll mb-5 md:mb-4 min-h-0">
+          <div className="terminal-output font-tech">
+            {lines.map(renderLine)}
+            {streamingText !== null && <div className="term-output typewriter mb-2">{streamingText}</div>}
+            {streamingText === null && (
+              <div className="mt-2">
+                <span className="term-prompt-fri">fri&gt;</span>{" "}
+                <span className="term-cursor" aria-hidden="true" />
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="relative mt-3">
+          <span className="absolute -top-[7px] left-3 px-1.5 text-[9px] font-vt323 tracking-widest z-10" style={{ color: "var(--text-accent-soft)", background: "var(--bg-panel)" }}>
+            COMMAND INPUT
+          </span>
+          <div className="flex items-center transition-colors" style={{ border: "1px solid var(--border-accent)", background: "var(--bg-input)" }}>
+            <span className="pl-3 text-xs font-vt323 text-neon-coral/50 select-none shrink-0">fri&gt;</span>
+            <input
+              ref={inputRef}
+              type="text"
+              className="flex-1 bg-transparent font-vt323 text-sm py-3 px-2 focus:outline-none"
+              style={{ color: "var(--text-input)" }}
+              placeholder={busy ? "Friday is thinking..." : "type /help or talk to Friday"}
+              autoComplete="off"
+              disabled={busy}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+            />
+            <button type="button" className="px-3 py-3 transition-colors shrink-0 disabled:opacity-30" style={{ color: "var(--text-accent-muted)" }} title="Send" aria-label="Send" disabled={busy} onClick={submit}>
+              <img src="https://unpkg.com/pixelarticons@1.8.1/svg/arrow-right.svg" className="pa-icon w-4 h-4 inline-block" alt="" aria-hidden="true" />
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  /* ---- XP skin — CMD window ---- */
   return (
     <div
       id="session-panel"

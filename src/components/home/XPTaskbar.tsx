@@ -9,6 +9,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useSkin } from "@/lib/skin";
 
 const clockFmt = new Intl.DateTimeFormat("en-US", {
   timeZone: "America/New_York",
@@ -18,6 +19,7 @@ const clockFmt = new Intl.DateTimeFormat("en-US", {
 });
 
 export default function XPTaskbar() {
+  const { skin } = useSkin();
   const [clock, setClock] = useState("");
   const [startOpen, setStartOpen] = useState(false);
 
@@ -27,6 +29,9 @@ export default function XPTaskbar() {
     const id = setInterval(tick, 10000);
     return () => clearInterval(id);
   }, []);
+
+  /* scifi skin: no taskbar */
+  if (skin === "scifi") return null;
 
   return (
     <>

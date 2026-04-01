@@ -1,41 +1,52 @@
 /**
- * [INPUT]: react hooks, localStorage
- * [OUTPUT]: ThemeToggle — button that switches data-theme on <html>
+ * [INPUT]: useSkin context hook
+ * [OUTPUT]: ThemeToggle — skin switcher button (XP ↔ Sci-Fi)
  * [POS]: ui/ shared primitive, placed in SystemHeader
  * [PROTOCOL]: update this header on change, then check CLAUDE.md
  */
 
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useSkin } from "@/lib/skin";
 
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<"dark" | "light">("dark");
+  const { skin, toggle } = useSkin();
 
-  useEffect(() => {
-    const saved = localStorage.getItem("fri-theme") as "dark" | "light" | null;
-    const initial = saved || "dark";
-    setTheme(initial);
-    document.documentElement.setAttribute("data-theme", initial);
-  }, []);
+  if (skin === "xp") {
+    return (
+      <button
+        type="button"
+        onClick={toggle}
+        className="xp-btn-min"
+        style={{ width: "21px", height: "21px", fontSize: "9px", fontWeight: "bold" }}
+        aria-label="Switch to Sci-Fi skin"
+        title="Switch to Sci-Fi skin"
+      >
+        ✦
+      </button>
+    );
+  }
 
-  const toggle = useCallback(() => {
-    const next = theme === "dark" ? "light" : "dark";
-    setTheme(next);
-    document.documentElement.setAttribute("data-theme", next);
-    localStorage.setItem("fri-theme", next);
-  }, [theme]);
-
+  /* sci-fi skin — render a minimal neon button */
   return (
     <button
       type="button"
       onClick={toggle}
-      className="xp-btn-min"
-      style={{ width: '21px', height: '21px', fontSize: '10px' }}
-      aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
-      title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+      className="p-1.5 transition-colors hover:opacity-80"
+      style={{
+        background: "transparent",
+        border: "1px solid var(--border-accent)",
+        color: "var(--text-accent)",
+        fontFamily: "monospace",
+        fontSize: "9px",
+        cursor: "pointer",
+        lineHeight: 1,
+        padding: "3px 5px",
+      }}
+      aria-label="Switch to XP skin"
+      title="Switch to Windows XP skin"
     >
-      {theme === "dark" ? "☀" : "☾"}
+      XP
     </button>
   );
 }
