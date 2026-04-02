@@ -9,7 +9,7 @@ import fs from "fs";
 import path from "path";
 
 const CONTENT_DIR = path.join(process.cwd(), "content");
-const LAUNCH_DATE = new Date(2026, 0, 30, 22, 0, 0);
+const LAUNCH_DATE = new Date(2026, 3, 2, 0, 0, 0); // 2026-04-02
 
 export interface SiteStats {
   diaryCount: number;
