@@ -14,7 +14,7 @@ interface EntryListProps {
   subtitle: string;
 }
 
-const typeColors = {
+const typeColors: Record<"diary" | "weekly" | "daily", "cyan" | "emerald" | "violet"> = {
   diary: "cyan",
   weekly: "emerald",
   daily: "violet",
@@ -26,19 +26,29 @@ const typeLinks = {
   daily: "/daily",
 };
 
+const colorClassMap: Record<"cyan" | "emerald" | "violet", string> = {
+  cyan: "text-cyan-400 border-cyan-500/50 hover:border-cyan-500",
+  emerald: "text-emerald-400 border-emerald-500/50 hover:border-emerald-500",
+  violet: "text-violet-400 border-violet-500/50 hover:border-violet-500",
+};
+
+const hoverTextClassMap: Record<"cyan" | "emerald" | "violet", string> = {
+  cyan: "group-hover:text-cyan-400",
+  emerald: "group-hover:text-emerald-400",
+  violet: "group-hover:text-violet-400",
+};
+
+const borderColorClassMap: Record<"cyan" | "emerald" | "violet", string> = {
+  cyan: "hover:border-cyan-500",
+  emerald: "hover:border-emerald-500",
+  violet: "hover:border-violet-500",
+};
+
 export function EntryList({ entries, type, title, subtitle }: EntryListProps) {
   const color = typeColors[type];
-  const colorClass = {
-    cyan: "text-cyan-400 border-cyan-500/50 hover:border-cyan-500",
-    emerald: "text-emerald-400 border-emerald-500/50 hover:border-emerald-500",
-    violet: "text-violet-400 border-violet-500/50 hover:border-violet-500",
-  }[color];
-
-  const hoverTextClass = {
-    cyan: "group-hover:text-cyan-400",
-    emerald: "group-hover:text-emerald-400",
-    violet: "group-hover:text-violet-400",
-  }[color];
+  const colorClass = colorClassMap[color];
+  const hoverTextClass = hoverTextClassMap[color];
+  const borderColorClass = borderColorClassMap[color];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
@@ -79,7 +89,7 @@ export function EntryList({ entries, type, title, subtitle }: EntryListProps) {
                 <Link
                   key={entry.slug}
                   href={`/${type}/${entry.slug}`}
-                  className={`group bg-slate-900/50 backdrop-blur border border-slate-800 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 ${colorClass.replace('text-', 'hover:border-').split(' ')[0]}`}
+                  className={`group bg-slate-900/50 backdrop-blur border border-slate-800 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 ${borderColorClass}`}
                 >
                   {entry.cover && (
                     <div className="h-40 overflow-hidden">
