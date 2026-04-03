@@ -10,6 +10,7 @@ import path from "path";
 
 const CONTENT_DIR = path.join(process.cwd(), "content");
 const LAUNCH_DATE = new Date(2026, 3, 2, 0, 0, 0); // 2026-04-02
+// 天数计算：上线当天为第 1 天
 
 export interface SiteStats {
   diaryCount: number;
@@ -90,7 +91,7 @@ export function getSiteStats(): SiteStats {
   const thisWeekCount = dates.filter((d) => new Date(d) >= weekAgo).length;
   const thisMonthCount = dates.filter((d) => new Date(d) >= monthAgo).length;
 
-  const daysSinceLaunch = Math.floor((now.getTime() - LAUNCH_DATE.getTime()) / 86400000);
+  const daysSinceLaunch = Math.max(1, Math.floor((now.getTime() - LAUNCH_DATE.getTime()) / 86400000) + 1);
 
   // daily activity: last 30 days, each = { date, count }
   const dailyActivity: { date: string; count: number }[] = [];
