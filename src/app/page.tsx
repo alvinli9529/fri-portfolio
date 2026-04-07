@@ -5,6 +5,7 @@
 
 import { getSiteStats } from "@/lib/stats";
 import { getEntries } from "@/lib/content";
+import LiveDaysCounter from "@/components/LiveDaysCounter";
 import Link from "next/link";
 
 export default async function Home() {
@@ -49,10 +50,7 @@ export default async function Home() {
               <div className="text-3xl font-bold text-cyan-400">{stats.totalWords.toLocaleString()}</div>
               <div className="text-slate-500 text-sm mt-1">字数</div>
             </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-cyan-400">{stats.daysSinceLaunch}</div>
-              <div className="text-slate-500 text-sm mt-1">天数</div>
-            </div>
+            <LiveDaysCounter />
           </div>
         </header>
 
