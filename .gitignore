@@ -7,6 +7,3 @@ next-env.d.ts
 .gstack/
 .env*.local
 matrix-rain-playground.html
-content/diary/
-content/weekly/
-content/daily/
